@@ -1,5 +1,5 @@
 /*Utilizando Empresa X*/
-
+USE Empresa_X;
 select * from funcionario
 select nome,cargo from funcionario
 select nome + ' trabalha como ' + cargo from funcionario
@@ -206,7 +206,7 @@ SELECT * FROM produto WHERE nome_prod NOT IN (SELECT produto_vend FROM venda WHE
 
 /*Seção 21 - Join*/
 /*Usando empresa "Y".*/
-
+USE Empresa_Y
 SELECT * FROM pedido JOIN produto ON pedido.idProduto=produto.idProduto
 SELECT * FROM pedido JOIN vendedor ON PEDIDO.idVendedor=vendedor.idVendedor
 SELECT * FROM pedido JOIN cliente ON PEDIDO.idCliente=cliente.idCliente
@@ -227,6 +227,7 @@ ON p.idCliente=c.idCliente
 /*Sem o "LEFT" não é possível visualizar há vendedores associados à uma venda
 **que não constam na tabela de cadastro de vendedores.*/
 /*Utilizando Empresa X*/
+USE Empresa_X;
 SELECT * FROM venda JOIN funcionario ON venda.vendedor = funcionario.nome
 /*Com o "LEFT JOIN" é possível verificar vendedores não cadastrados.*/
 SELECT * FROM venda LEFT JOIN funcionario ON venda.vendedor = funcionario.nome
@@ -257,6 +258,7 @@ SELECT cidade, SUM(salario) AS Salários FROM funcionario GROUP BY cidade
 /*Seção 26*/
 /*Aula 34*/
 /*Usando empresa "X".*/
+USE Empresa_X;
 SELECT * FROM funcionario
 
 SELECT nome, data_contratacao,
@@ -304,4 +306,60 @@ WHEN cidade = 'Araras' THEN
 	END
 END AS Resultado FROM funcionario
 
+/* Seção 27 - Insert*/
+/* Aula 36 */
+USE Empresa_X;
+sp_help funcionario
 
+INSERT INTO funcionario(nome,nascimento,data_contratacao,cargo,cidade,salario)
+VALUES('João Salgado','1979-10-10','2015-10-10','Vendedor','São Paulo',6500);
+
+SELECT * FROM funcionario;
+
+DELETE FROM funcionario WHERE id = 23
+
+/*Atualiza o id da tabela, caso esteja errado(caso registros tenham sido deletados
+a contagem de id estaria errada. No último argumento deve ser informado o último id
+em uso na tabela*/
+DBCC CHECKIDENT ('funcionario', RESEED,22)	
+
+USE Empresa_Y;
+
+INSERT INTO pedido (idProduto,idVendedor,idCliente, Quantidade,Valor)
+VALUES(1,3,1,30,500);
+
+INSERT INTO Vendedor(Nome)VALUES('Roberto Carlos');
+
+SELECT * FROM Produto
+SELECT * FROM Vendedor
+SELECT * FROM Cliente
+SELECT * FROM Pedido
+
+/* Aula 37 - Realizando o Insert à partir de uma consulta*/
+USE Empresa_Y;
+
+INSERT INTO Pedido(idVendedor, idCliente, idProduto, Quantidade, Valor)
+SELECT Vendedor.idVendedor, Cliente.idCliente,Produto.idProduto, 1500, 6500 FROM Vendedor, Cliente, Produto 
+WHERE Vendedor.Nome = 'Roberto Carlos' AND Cliente.Nome = 'José da Silva' AND Produto.Descrição = 'iPAD';
+
+SELECT * FROM Pedido;
+
+/* Seção 28 - UPDATE */
+/* Aula 38 */
+
+USE Empresa_X;
+
+SELECT * FROM funcionario;
+
+UPDATE funcionario SET nome = 'Josias da Silva' WHERE id = 1;
+
+UPDATE funcionario SET nascimento='1985-10-10', cargo = 'Gerente', salario = 1500 WHERE id = 6; 
+
+UPDATE funcionario SET salario = salario * 1.1 WHERE salario = 1250;
+
+/*Consulta*/
+SELECT MIN(salario) FROM funcionario;
+/*Subconsulta*/
+SELECT * FROM funcionario WHERE salario = (SELECT MIN(salario) FROM funcionario);
+/*UPDATE com subconsulta*/
+UPDATE funcionario SET salario = salario * 1.5 WHERE salario = (SELECT MIN(salario) FROM funcionario);

@@ -363,3 +363,76 @@ SELECT MIN(salario) FROM funcionario;
 SELECT * FROM funcionario WHERE salario = (SELECT MIN(salario) FROM funcionario);
 /*UPDATE com subconsulta*/
 UPDATE funcionario SET salario = salario * 1.5 WHERE salario = (SELECT MIN(salario) FROM funcionario);
+
+/* Seção 29 - DELETE */
+/* Aula 39 */
+
+USE Empresa_X;
+SELECT * FROM produto;
+DELETE FROM produto WHERE id = 6;
+DELETE FROM produto WHERE estoque > 100;
+
+INSERT INTO produto (nome_prod,marca,validade,estoque,preco)
+VALUES('Refrigerante','Coca-Cola','2021-03-13',660,7.9);
+
+/*40*/
+/*COMMIT / ROLLBACK*/
+
+USE Empresa_X;
+
+SELECT * FROM venda;
+/*O ROLLBACK TRANSACTION cria uma "Transação" que permite
+desfazer um DELETE. Para isso, o ROLLBACK deve ter sido criado antes
+do DELETE*/
+BEGIN TRANSACTION exemplo;
+DELETE FROM venda WHERE quantidade > 150;
+/*Desfazendo o DELETE:*/
+ROLLBACK TRANSACTION exemplo;
+
+BEGIN TRANSACTION exemplo2;
+/*Deletando todos os registros da tabela:*/
+DELETE FROM venda;
+/*O COMMIT TRANSACTIO confirma a deleção feita*/
+COMMIT TRANSACTION exemplo2;
+/*Como foi confirmada a deleção, não é possível utilizar o 
+ROLLBACK TRANSACTION para desfazer o que foi feito. Essa transação 
+já não existe mais(exemplo2). Será apresentada uma mensagem de erro.*/
+ROLLBACK TRANSACTION exemplo2;
+
+/*Seção 30*/
+/*Aula 41 - CREATE DATABASE, CREATE TABLE*/
+
+CREATE DATABASE Empresa_Z;
+USE Empresa_Z;
+
+CREATE TABLE clientes
+(
+Id INTEGER IDENTITY(1,1) PRIMARY KEY  NOT NULL,
+Nome VARCHAR(50) NOT NULL,
+Endereco VARCHAR(50) NOT NULL,
+Email VARCHAR(50),
+Data_Nascimento DATE
+);
+
+sp_help clientes;
+
+/*Aula 42 - Chaves estrangeiras*/
+USE Empresa_Z;
+
+CREATE TABLE produtos
+(
+Id INTEGER IDENTITY(1,1) PRIMARY KEY NOT NULL,
+Produto VARCHAR(50)NOT NULL,
+Quantidade INTEGER NOT NULL,
+Preco DECIMAL(18,2) NOT NULL
+);
+
+CREATE TABLE pedido
+(
+Id INTEGER IDENTITY(1,1) PRIMARY KEY NOT NULL,
+Id_prod INTEGER CONSTRAINT FK_Ped_Prod REFERENCES produtos(Id),
+Id_clie INTEGER CONSTRAINT FK_Ped_Clie REFERENCES clientes(Id),
+Quantidade INTEGER,
+);
+
+sp_help pedido
